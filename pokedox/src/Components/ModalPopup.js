@@ -1,22 +1,138 @@
 import React from 'react';
-import {Modal,Button,ButtonToolbar,Table} from 'react-bootstrap'
+import {Modal,Button,ButtonToolbar,Table,Tab,Nav,Col,Row} from 'react-bootstrap'
 import axios from 'axios';
-import Ability from './Ability'
+import Ability from './Ability';
+import ReadMoreAndLess from 'react-read-more-less';
 
+function GameIndex(props){
+    let dataFlag=false;
+    if(props.data){
+        dataFlag=true;
+    }
+    return <div>
+        {dataFlag?<Table striped bordered hover size="sm">
+                <thead>
+                    <tr>
+                        <th>Game Index</th>
+                        <th>Version Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {props.data.map((vals,index)=>{
+                        return <tr key={index}>
+                            <td>{vals.game_index}</td>
+                            <td>{vals.version.name}</td>
+                        </tr>
+                    })}
+
+                </tbody>
+        </Table>:null}
+        </div>
+}
+function Stats(props){
+    let dataFlag=false;
+    if(props.data){
+        dataFlag=true;
+        props.data.sort(function(a, b) {
+            return a.base_stat - b.base_stat;
+        })
+    }
+    return <div>
+        {dataFlag?<Table striped bordered hover size="sm">
+                <thead>
+                    <tr>
+                        <th>Base Stat</th>
+                        <th>Effort</th>
+                        <th>Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {props.data.map((vals,index)=>{
+                        return <tr key={index}>
+                            <td>{vals.base_stat}</td>
+                            <td>{vals.effort}</td>
+                            <td>{vals.stat.name}</td>
+                        </tr>
+                    })}
+
+                </tbody>
+        </Table>:null}
+        </div>
+}
+function Type(props){
+    let dataFlag=false;
+    if(props.data){
+        dataFlag=true;
+        props.data.sort(function(a, b) {
+            return a.slot - b.slot;
+        })
+    }
+    return <div>
+        {dataFlag?<Table striped bordered hover size="sm">
+                <thead>
+                    <tr>
+                        <th>Slot</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {props.data.map((vals,index)=>{
+                        return <tr key={index}>
+                            <td>{vals.slot}</td>
+                            <td>{vals.type.name}</td>
+                        </tr>
+                    })}
+
+                </tbody>
+        </Table>:null}
+        </div>
+}
 function MyVerticallyCenteredModal(props) {
+    let keyMap={
+        abilities:"Abilities",
+        game_indices:"Game Ind.",
+        moves:"Moves",
+        stats:"Stats",
+        types:"Types",
+        id:"Pokemon Id",
+        base_experience:"Base Exp.",
+        height:"Height",
+        order:"order",
+        weight:"Weight"
+    }
+    let keyArray=["abilities","game_indices","moves","stats","types"];
+    let metaArray=["id","base_experience","height","order","weight"];
+    console.log(props.details)
     const responseKeys=Object.keys(props.details)
     const renderData=(responseKey,type)=>{
         if(Array.isArray(type)){
             if(responseKey=="abilities"){
                 return type.map((innerVal,index)=>{
-                  return <li key={index}><Ability key={responseKey} data={innerVal.ability} val={responseKey}/></li>
+                    return <Ability key={index} data={innerVal.ability} val={responseKey}/>
                 })
-                //return "abilities"
+            }
+            else if(responseKey=="game_indices"){
+                return <div className="gameIndexContainer"><GameIndex data={type}/></div>
+            }
+            else if(responseKey=="moves"){
+                return <ul className="moves">
+                    <span>{keyMap[responseKey]}</span>
+                        {   
+                        type.map((innerVal,index)=>{
+                            return <li key={index}>{innerVal.move.name}</li>
+                        })
+                    }
+                </ul>
+            }
+            else if(responseKey=="stats"){
+                return <Stats data={type}/>
+            }
+            else if(responseKey=="types"){
+                return <Type data={type}/>
             }
             else{
                 return <li>is an array</li>
             }
-            
         }
         else if(type.constructor === Object){
             return <li>is an object</li>
@@ -34,40 +150,55 @@ function MyVerticallyCenteredModal(props) {
       >
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title-vcenter">
-            {props.name}
+            {props.name.toUpperCase()}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {
-            console.log(props.details)
-            
+            {
+                responseKeys.length?<Row className="metaData">
+                    {
+                        metaArray.map((metaData,index)=>{
+                        return <Col key={index}><span className="metaleftCell">{keyMap[metaData]}</span>:<span className="metarightCell">{props.details[metaData]}</span></Col>
+                        })
+                    }
+                </Row>:null
             }
             {
-                responseKeys?responseKeys.map((val,index)=>{
-                    return <div key={index}>
-                        <ul>{val}
-                        {renderData(val,props.details[val])}
-                        </ul>
-                    </div>
-                }):null
+                responseKeys.length?<Tab.Container id="left-tabs-example" defaultActiveKey="abilities">
+                <Row>
+                    <Col sm={3}>
+                    <Nav variant="pills" className="flex-column">
+                    {
+                        keyArray.map((leftVals,index)=>{
+                           return <Nav.Item key={index}>
+                            <Nav.Link eventKey={leftVals}>{keyMap[leftVals]}</Nav.Link>
+                            </Nav.Item>
+                        })
+                     }
+                    </Nav>
+                    </Col>
+                    <Col sm={9}>
+                    <Tab.Content>
+                        {
+                            keyArray.map((leftVals,index)=>{
+                            return <Tab.Pane eventKey={leftVals} key={index}>
+                                {
+                                    renderData(leftVals,props.details[leftVals])
+                                    //renderData("abilities",props.details.abilities,keyMap["abilities"])
+                                }
+                                </Tab.Pane>
+                            })
+                        }
+                        
+                        <Tab.Pane eventKey="second">
+                            second
+                        </Tab.Pane>
+                    </Tab.Content>
+                    </Col>
+                </Row>
+            </Tab.Container>:null
             }
-            {/* <Table striped bordered hover size="sm">
-            <tbody>
-            {
-                
-                responseKeys?responseKeys.map((val,index)=>{
-                    return <tr key={index}>
-                        <td>{val}</td>
-                        <td>{props.details.val}</td>
-                    </tr>
-                }):null
-            }
-            </tbody>
-            </Table> */}
         </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={props.onHide}>Close</Button>
-        </Modal.Footer>
       </Modal>
     );
   }
@@ -91,7 +222,7 @@ const openPopUp=()=>{
 return (
     <ButtonToolbar>
     <Button variant="primary" onClick={() => openPopUp()}>
-    {props.pokemon.name}
+    {props.pokemon.name.toUpperCase()}
     </Button>
     <MyVerticallyCenteredModal
         show={modalShow}

@@ -11,3 +11,40 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+.metaData{
+  margin-bottom: 20px;
+}
+.abilityContainer{
+  border-bottom: 1px dashed black;
+}
+.abilityName{
+  text-align: center;
+  font-weight: 700;
+  color: black;
+}
+.abilityHeaders{
+  font-weight: 700;
+  color: black;
+}
+.abilityVals{
+  color: #007bff;
+  font-weight: 600;
+  padding-left: 10px;
+}
+.abilityVals table{
+  margin-left: 10px;
+}
+.lastCellAbility{
+  margin-bottom:10px;
+}
+.moves span{
+  padding-left: 35%;
+  font-weight: 700;
+}
+.metaleftCell{
+  font-weight: 700;
+}
+.metarightCell{
+  color: #007bff;
+  padding-left: 10px;
+}
