@@ -94,15 +94,15 @@ function MyVerticallyCenteredModal(props) {
         moves:"Moves",
         stats:"Stats",
         types:"Types",
-        id:"Pokemon Id",
+        id:"Id",
         base_experience:"Base Exp.",
         height:"Height",
         order:"order",
-        weight:"Weight"
+        weight:"Weight",
+        sprites:"Images"
     }
-    let keyArray=["abilities","game_indices","moves","stats","types"];
+    let keyArray=["abilities","game_indices","moves","stats","types","sprites"];
     let metaArray=["id","base_experience","height","order","weight"];
-    console.log(props.details)
     const responseKeys=Object.keys(props.details)
     const renderData=(responseKey,type)=>{
         if(Array.isArray(type)){
@@ -134,8 +134,11 @@ function MyVerticallyCenteredModal(props) {
                 return <li>is an array</li>
             }
         }
-        else if(type.constructor === Object){
-            return <li>is an object</li>
+        else if(type.constructor === Object && responseKey=="sprites"){
+            let spritesKeys=Object.keys(type);
+            return spritesKeys.map((image,index)=>{
+                return <li key={index}><img src={type[image]} alt={image} height="42" width="42"></img></li>
+            })
         }
         else{
             return <li>{type}</li>;
@@ -151,7 +154,7 @@ function MyVerticallyCenteredModal(props) {
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title-vcenter">
             {props.name.toUpperCase()}
-          </Modal.Title>
+            </Modal.Title>
         </Modal.Header>
         <Modal.Body>
             {
