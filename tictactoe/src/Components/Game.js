@@ -1,5 +1,8 @@
 import React from 'react';
-import Board from './Board'
+import Board from './Board';
+import * as $ from 'jquery';
+import {Button} from 'react-bootstrap'
+
 class Game extends React.Component {
     constructor(props) {
         super(props);
@@ -10,16 +13,18 @@ class Game extends React.Component {
             }
           ],
           stepNumber: 0,
-          xIsNext: false
+          xIsNext: false,
+          isClicked:Array(9).fill(null),
+          compChance:null
         };
       }
       componentDidUpdate(){
-        //   let emptyIndexPosList=this.state.history[this.state.stepNumber].squares.filter(function(v,index){ 
-        //       if(v==null){
-        //           return index}
-        //     })
-        // console.log(this.state.history[this.state.stepNumber].squares)
-        // console.log(this.state.emptyIndexPos)
+        if(this.state.compChance && this.state.xIsNext){
+            setTimeout(() => {
+                $(".square"+this.state.compChance).click();
+            }, 1000);
+            
+        }
       }
       calculateWinner(squares) {
         const lines = [
@@ -42,11 +47,20 @@ class Game extends React.Component {
       }
       userClicked(i){
         this.handleClick(i);
+        let indexArr=[];
+        this.state.isClicked.map((val,index)=>{
+            if(!val){
+                return indexArr.push(index);
+            }
+        })
+        this.setState({compChance:indexArr[Math.floor(Math.random() * indexArr.length)]});        
       }
       handleClick(i) {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
+        let isClickedLoc=this.state.isClicked;
+        isClickedLoc[i]=true;
         if (this.calculateWinner(squares) || squares[i]) {
           return;
         }
@@ -58,38 +72,64 @@ class Game extends React.Component {
             }
           ]),
           stepNumber: history.length,
-          xIsNext: !this.state.xIsNext
+          xIsNext: !this.state.xIsNext,
+          isClicked:isClickedLoc
         });
       }
     
       jumpTo(step) {
         this.setState({
           stepNumber: step,
-          xIsNext: (step % 2) === 0
+          xIsNext: (step % 2) !== 0
         });
+      }
+      restart(){
+          //resetting the states
+        this.setState ({
+            history: [
+              {
+                squares: Array(9).fill(null)
+              }
+            ],
+            stepNumber: 0,
+            xIsNext: false,
+            isClicked:Array(9).fill(null),
+            compChance:null
+          });
       }
     
       render() {
         const history = this.state.history;
         const current = history[this.state.stepNumber];
         const winner = this.calculateWinner(current.squares);
-    
         // const moves = history.map((step, move) => {
         //   const desc = move ?
         //     'Go to move #' + move :
         //     'Go to game start';
         //   return (
         //     <li key={move}>
-        //       <button onClick={() => this.jumpTo(move)}>{desc}</button>
+        //        <button onClick={() => this.jumpTo(move)}>{desc}</button>
         //     </li>
         //   );
         // });
-    
+        let colorClass="colorRed"
         let status;
         if (winner) {
-          status = "Winner: " + winner;
-        } else {
-          status = "Next player: " + (this.state.xIsNext ? "X" : "O");
+            if(winner=='X'){
+                status="Computer Won. Better luck next time!!!";
+                colorClass="colorRed";
+            }
+            else{
+                status="Congrats You Won. Wanna try again?";
+                colorClass="colorGreen";
+            }
+        } 
+        else if(history.length==10){
+            status = "Ohh!! Match Draw";
+            colorClass="colorRed";
+        }
+        else {
+          //status = "Next player: " + (this.state.xIsNext ? "X" : "O");
         }
     
         return (
@@ -101,8 +141,9 @@ class Game extends React.Component {
               />
             </div>
             <div className="game-info">
-              <div>{status}</div>
+              <div className={colorClass}>{status}</div>
               {/* <ol>{moves}</ol> */}
+              <Button variant="primary" onClick={() => this.restart()}>Restart Game</Button>
             </div>
           </div>
         );

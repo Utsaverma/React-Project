@@ -3,7 +3,6 @@ import axios from 'axios';
 import ModalPopup from './ModalPopup';
 import Select from 'react-select';
 import {Row,Col,Button} from 'react-bootstrap';
-import Marquee from 'react-double-marquee'
 
 class MainScreen extends React.Component {
     constructor(props){
